@@ -37,7 +37,7 @@ img_dataloader = DataLoader(
 
 class MyConv(nn.Module):
     def __init__(self):
-        super(MyConv, self).__init__()
+        super().__init__()
         self.conv = Conv2d(3, 3, 3, 1,bias=False)
         kernel = torch.tensor([[-1, -1, -1],
                                [-1, 8, -1],
@@ -50,15 +50,26 @@ class MyConv(nn.Module):
         x = self.conv(x)
         return x
 
+class MyPooling(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.maxpool = nn.MaxPool2d(kernel_size=3, ceil_mode=True)
+    def forward(self, input):
+        output = self.maxpool(input)
+        return output
+
+
 my_conv = MyConv()
+my_pool = MyPooling()
 writer = SummaryWriter("logs")
 step = 0
 for imgs, labels in img_dataloader:
-    out_imgs = my_conv(imgs)
+    imgs_conv_out = my_conv(imgs)
+    imgs_pooling_out= my_pool(imgs_conv_out)
     writer.add_image("input",imgs.squeeze(0),step)# ('a', 'b', 'c')
-    writer.add_image("output", out_imgs.squeeze(0), step)
+    writer.add_image("conv",imgs_conv_out.squeeze(0),step)
+    writer.add_image("pooling", imgs_pooling_out.squeeze(0), step)
     step += 1
-
 writer.close()
 
 # for i in range(5):
